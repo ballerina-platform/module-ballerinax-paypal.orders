@@ -14381,7 +14381,7 @@
         "description": "Oauth 2.0 authentication",
         "flows": {
           "clientCredentials": {
-            "tokenUrl": "/v1/oauth2/token",
+            "tokenUrl": "https://api-m.sandbox.paypal.com/v1/oauth2/token",
             "scopes": {
               "https://uri.paypal.com/services/payments/payment": "Manage payments and checkout workflow.",
               "https://uri.paypal.com/services/payments/payment/reference-transaction": "Permission to initiate reference transaction",

@@ -458,7 +458,7 @@ public type eps_request record {
 public type OAuth2ClientCredentialsGrantConfig record {|
     *http:OAuth2ClientCredentialsGrantConfig;
     # Token URL
-    string tokenUrl = "https://api-m.sandbox.paypal.com/v2/checkout/v1/oauth2/token";
+    string tokenUrl = "https://api-m.sandbox.paypal.com/v1/oauth2/token";
 |};
 
 public type AuthorizationAllOf2 record {

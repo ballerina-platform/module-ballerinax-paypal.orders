@@ -60,7 +60,45 @@ These changes are done in order to improve the overall usability, and as workaro
 
 **Reason**: Adding `/v2/checkout` to server URLs keeps versioning centralized.
 
-## 2. Remove path prefix
+## 2. Update `tokenUrl` to absolute URL
+
+**Location**: `components.securitySchemes.Oauth2.flows.clientCredentials`
+
+**Original**:
+
+```json
+"clientCredentials": {
+  "tokenUrl": "/v1/oauth2/token",
+  "scopes": {
+    ...
+  }
+}
+```
+
+**Sanitized**:
+
+```json
+"clientCredentials": {
+  "tokenUrl": "https://api-m.sandbox.paypal.com/v1/oauth2/token",
+  "scopes": {
+    ...
+  }
+}
+```
+
+```diff
+"clientCredentials": {
+-  "tokenUrl": "/v1/oauth2/token",
++  "tokenUrl": "https://api-m.sandbox.paypal.com/v1/oauth2/token",
+  "scopes": {
+    ...
+  }
+}
+```
+
+**Reason**: Prevents the relative path from being appended to the server URL, avoiding an invalid token endpoint.
+
+## 3. Remove path prefix
 
 **Location**: `paths`
 
@@ -113,7 +151,7 @@ These changes are done in order to improve the overall usability, and as workaro
 
 **Reason**: Removing `/v2/checkout` from paths makes them shorter and consistent now that the version is already in the server URLs.
 
-## 3. Change default prefer header value
+## 4. Change default prefer header value
 
 **Location**: `components.parameters.prefer`
 
@@ -154,7 +192,7 @@ These changes are done in order to improve the overall usability, and as workaro
 
 **Reason**: Setting the default to return=representation means clients get the full response.
 
-## 4. Rename `customer` to `wallet_customer`
+## 5. Rename `customer` to `wallet_customer`
 
 **Location**: `components.schemas.PaypalWalletVaultResponseAllOf2`
 
