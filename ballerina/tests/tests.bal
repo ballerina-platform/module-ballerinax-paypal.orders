@@ -14,13 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import paypal.orders.mock as _;
+
 import ballerina/os;
 import ballerina/test;
 import ballerina/uuid;
 
-import paypal.orders.mock as _;
-
-configurable boolean isLiveServer = true;
+configurable boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "true";
 
 configurable string clientId = os:getEnv("PAYPAL_CLIENT_ID");
 configurable string clientSecret = os:getEnv("PAYPAL_CLIENT_SECRET");
@@ -64,7 +64,9 @@ function initClient() returns error? {
     }
 }
 
-@test:Config
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
 function createCaptureOrder() returns error? {
     'order response = check paypal->/orders.post({
         intent: "CAPTURE",
@@ -81,6 +83,7 @@ function createCaptureOrder() returns error? {
 }
 
 @test:Config {
+    groups: ["live_tests", "mock_tests"],
     dependsOn: [createCaptureOrder]
 }
 function getCaptureOrder() returns error? {
@@ -96,6 +99,7 @@ function getCaptureOrder() returns error? {
 }
 
 @test:Config {
+    groups: ["live_tests", "mock_tests"],
     dependsOn: [getCaptureOrder]
 }
 function updateCaptureOrder() returns error? {
@@ -111,6 +115,7 @@ function updateCaptureOrder() returns error? {
 }
 
 @test:Config {
+    groups: ["live_tests", "mock_tests"],
     dependsOn: [updateCaptureOrder]
 }
 function confirmCaptureOrderPaymentSource() returns error? {
@@ -136,6 +141,7 @@ function confirmCaptureOrderPaymentSource() returns error? {
 }
 
 @test:Config {
+    groups: ["live_tests", "mock_tests"],
     dependsOn: [confirmCaptureOrderPaymentSource]
 }
 function captureOrder() returns error? {
@@ -174,6 +180,7 @@ function captureOrder() returns error? {
 }
 
 @test:Config {
+    groups: ["live_tests", "mock_tests"],
     dependsOn: [captureOrder]
 }
 function addTrackingInfo() returns error? {
@@ -207,6 +214,7 @@ function addTrackingInfo() returns error? {
 }
 
 @test:Config {
+    groups: ["live_tests", "mock_tests"],
     dependsOn: [addTrackingInfo]
 }
 function updateTrackingInfo() returns error? {
@@ -219,7 +227,9 @@ function updateTrackingInfo() returns error? {
     ]);
 }
 
-@test:Config
+@test:Config {
+    groups: ["live_tests", "mock_tests"]
+}
 function createAuthorizeOrder() returns error? {
     'order response = check paypal->/orders.post({
         intent: "AUTHORIZE",
@@ -236,6 +246,7 @@ function createAuthorizeOrder() returns error? {
 }
 
 @test:Config {
+    groups: ["live_tests", "mock_tests"],
     dependsOn: [createAuthorizeOrder]
 }
 function getAuthorizeOrder() returns error? {
@@ -251,6 +262,7 @@ function getAuthorizeOrder() returns error? {
 }
 
 @test:Config {
+    groups: ["live_tests", "mock_tests"],
     dependsOn: [getAuthorizeOrder]
 }
 function confirmAuthorizeOrderPaymentSource() returns error? {
@@ -276,10 +288,11 @@ function confirmAuthorizeOrderPaymentSource() returns error? {
 }
 
 @test:Config {
+    groups: ["live_tests", "mock_tests"],
     dependsOn: [confirmAuthorizeOrderPaymentSource]
 }
 function authorizeOrder() returns error? {
-   order_authorize_response response = check paypal->/orders/[authorizeOrderId]/authorize.post({});
+    order_authorize_response response = check paypal->/orders/[authorizeOrderId]/authorize.post({});
 
     test:assertNotEquals(response, ());
 
