@@ -76,7 +76,7 @@ function createCaptureOrder() returns error? {
     test:assertNotEquals(response, ());
     test:assertNotEquals(response.id, ());
 
-    captureOrderId = <string>response.id;
+    captureOrderId = check response.id.ensureType();
 
     test:assertEquals(response.intent, "CAPTURE");
     test:assertEquals(response.status, "CREATED");
@@ -133,8 +133,8 @@ function confirmCaptureOrderPaymentSource() returns error? {
     test:assertEquals(response.id, captureOrderId);
     test:assertEquals(response.status, "APPROVED");
 
-    payment_source_response ps = <payment_source_response>response.payment_source;
-    card_response cr = <card_response>ps.card;
+    payment_source_response ps = check response.payment_source.ensureType();
+    card_response cr = check ps.card.ensureType();
 
     test:assertEquals(cr.last_digits, "8131");
     test:assertEquals(cr.expiry, "2035-12");
@@ -162,21 +162,21 @@ function captureOrder() returns error? {
 
     test:assertNotEquals(response.purchase_units, ());
 
-    purchase_unit[] purchaseUnits = <purchase_unit[]>response.purchase_units;
+    purchase_unit[] purchaseUnits = check response.purchase_units.ensureType();
     test:assertEquals(purchaseUnits.length(), 1);
 
     purchase_unit pu = purchaseUnits[0];
     test:assertEquals(pu.reference_id, "default");
 
-    payment_collection pc = <payment_collection>pu.payments;
-    capture[] captures = <capture[]>pc.captures;
+    payment_collection pc = check pu.payments.ensureType();
+    capture[] captures = check pc.captures.ensureType();
     test:assertEquals(captures.length(), 1);
 
     capture cap = captures[0];
     test:assertEquals(cap.status, "COMPLETED");
     test:assertNotEquals(cap.id, ());
 
-    captureOrderPaymentCaptureId = <string>cap.id;
+    captureOrderPaymentCaptureId = check cap.id.ensureType();
 }
 
 @test:Config {
@@ -196,21 +196,21 @@ function addTrackingInfo() returns error? {
 
     test:assertNotEquals(response, ());
 
-    purchase_unit[] purchaseUnits = <purchase_unit[]>response.purchase_units;
+    purchase_unit[] purchaseUnits = check response.purchase_units.ensureType();
     test:assertEquals(purchaseUnits.length(), 1);
 
     purchase_unit pu = purchaseUnits[0];
     test:assertEquals(pu.reference_id, "default");
 
-    shipping_with_tracking_details trackingDetails = <shipping_with_tracking_details>pu.shipping;
+    shipping_with_tracking_details trackingDetails = check pu.shipping.ensureType();
 
     test:assertNotEquals(trackingDetails, ());
 
-    tracker[] trackers = <tracker[]>trackingDetails.trackers;
+    tracker[] trackers = check trackingDetails.trackers.ensureType();
     test:assertEquals(trackers.length(), 1);
 
     tracker tr = trackers[0];
-    captureOrderTrackingId = <string>tr.id;
+    captureOrderTrackingId = check tr.id.ensureType();
 }
 
 @test:Config {
@@ -239,7 +239,7 @@ function createAuthorizeOrder() returns error? {
     test:assertNotEquals(response, ());
     test:assertNotEquals(response.id, ());
 
-    authorizeOrderId = <string>response.id;
+    authorizeOrderId = check response.id.ensureType();
 
     test:assertEquals(response.intent, "AUTHORIZE");
     test:assertEquals(response.status, "CREATED");
@@ -280,8 +280,8 @@ function confirmAuthorizeOrderPaymentSource() returns error? {
     test:assertEquals(response.id, authorizeOrderId);
     test:assertEquals(response.status, "APPROVED");
 
-    payment_source_response ps = <payment_source_response>response.payment_source;
-    card_response cr = <card_response>ps.card;
+    payment_source_response ps = check response.payment_source.ensureType();
+    card_response cr = check ps.card.ensureType();
 
     test:assertEquals(cr.last_digits, "8131");
     test:assertEquals(cr.expiry, "2035-12");
@@ -301,19 +301,19 @@ function authorizeOrder() returns error? {
 
     test:assertNotEquals(response.purchase_units, ());
 
-    purchase_unit[] purchaseUnits = <purchase_unit[]>response.purchase_units;
+    purchase_unit[] purchaseUnits = check response.purchase_units.ensureType();
     test:assertEquals(purchaseUnits.length(), 1);
 
     purchase_unit pu = purchaseUnits[0];
     test:assertEquals(pu.reference_id, "default");
 
-    payment_collection pc = <payment_collection>pu.payments;
-    authorization_with_additional_data[] authorizations = <authorization_with_additional_data[]>pc.authorizations;
+    payment_collection pc = check pu.payments.ensureType();
+    authorization_with_additional_data[] authorizations = check pc.authorizations.ensureType();
     test:assertEquals(authorizations.length(), 1);
 
     authorization_with_additional_data auth = authorizations[0];
     test:assertEquals(auth.status, "CREATED");
     test:assertNotEquals(auth.id, ());
 
-    captureOrderPaymentCaptureId = <string>auth.id;
+    captureOrderPaymentCaptureId = check auth.id.ensureType();
 }
