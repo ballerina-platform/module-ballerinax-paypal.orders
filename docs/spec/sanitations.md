@@ -1,4 +1,4 @@
-_Author_: Sithija Nelusha (@snelusha)
+_Author_: @snelusha
 _Created_: 18 June 2025
 _Updated_: 18 June 2025
 _Edition_: Swan Lake
