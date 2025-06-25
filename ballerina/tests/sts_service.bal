@@ -15,29 +15,25 @@
 // under the License.
 
 import ballerina/http;
-import ballerina/log;
 
 configurable int HTTP_SERVER_PORT = 9444;
 configurable int TOKEN_VALIDITY_PERIOD = 10000;
 
-listener http:Listener sts = new (HTTP_SERVER_PORT);
+http:Listener stsListener = check new (HTTP_SERVER_PORT);
 
-service /oauth2 on sts {
-    function init() {
-        log:printInfo("STS started on port: " + HTTP_SERVER_PORT.toString() + " (HTTP)");
-    }
-
-    resource function post token(http:Request req) returns json|http:Unauthorized|http:BadRequest|http:InternalServerError {
+http:Service sts = service object {
+    resource function post token() returns json {
         json response = {
             "access_token": "test-access-token",
             "token_type": "example",
             "expires_in": TOKEN_VALIDITY_PERIOD,
             "example_parameter": "example_value"
         };
+
         return response;
     }
 
-    resource function post introspect(http:Request req) returns json|http:Unauthorized|http:BadRequest {
+    resource function post introspect() returns json {
         json response = {
             "active": true,
             "scope": "read write",
@@ -54,7 +50,8 @@ service /oauth2 on sts {
             "extension_field": "twenty-seven",
             "scp": "admin"
         };
+
         return response;
     }
 
-}
+};

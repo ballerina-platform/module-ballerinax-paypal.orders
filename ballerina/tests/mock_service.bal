@@ -16,7 +16,7 @@
 
 import ballerina/http;
 
-final PurchaseUnit[] & readonly pUnits = [
+const pUnits = [
     {
         reference_id: "default",
         amount: {
@@ -40,7 +40,7 @@ final PurchaseUnit[] & readonly pUnits = [
     }
 ];
 
-final Order & readonly sampleCaptureOrder = {
+const sampleCaptureOrder = {
     id: "6JE657202M751084B",
     intent: "CAPTURE",
     status: "CREATED",
@@ -48,7 +48,7 @@ final Order & readonly sampleCaptureOrder = {
     create_time: "2025-06-17T08:53:19Z"
 };
 
-final Order & readonly sampleAuthorizeOrder = {
+const sampleAuthorizeOrder = {
     id: "6JE657202M751084C",
     intent: "AUTHORIZE",
     status: "CREATED",
@@ -57,29 +57,17 @@ final Order & readonly sampleAuthorizeOrder = {
 };
 
 service on new http:Listener(9090) {
-    resource isolated function post orders(@http:Payload OrderRequest payload) returns Order|http:NotFound {
-        if payload.intent == "CAPTURE" {
-            return sampleCaptureOrder;
-        } else if payload.intent == "AUTHORIZE" {
-            return sampleAuthorizeOrder;
-        }
-        return http:NOT_FOUND;
+    resource isolated function post orders(OrderRequest payload) returns Order {
+        return payload.intent == "CAPTURE" ? sampleCaptureOrder : sampleAuthorizeOrder;
     }
 
-    resource isolated function get orders/[string id]() returns Order|http:NotFound {
-        if id == sampleCaptureOrder.id {
-            return sampleCaptureOrder;
-        } else if id == sampleAuthorizeOrder.id {
-            return sampleAuthorizeOrder;
-        }
-        return http:NOT_FOUND;
+    resource isolated function get orders/[string id]() returns Order {
+        return id == sampleCaptureOrder.id ? sampleCaptureOrder : sampleAuthorizeOrder;
     }
 
-    resource isolated function patch orders/[string id](PatchRequest payload) returns error? {
-        return ();
-    }
+    resource isolated function patch orders/[string id](PatchRequest payload) {}
 
-    resource isolated function post orders/[string id]/confirm\-payment\-source(ConfirmOrderRequest payload) returns Order|http:NotFound {
+    resource isolated function post orders/[string id]/confirm\-payment\-source(ConfirmOrderRequest payload) returns Order {
         PaymentSourceResponse ps = {
             card: {
                 name: "John Doe",
@@ -106,19 +94,15 @@ service on new http:Listener(9090) {
                 create_time: sampleCaptureOrder.create_time
             };
         }
-        else if id == sampleAuthorizeOrder.id {
-            return {
-                id: sampleAuthorizeOrder.id,
-                intent: sampleAuthorizeOrder.intent,
-                status: "APPROVED",
-                purchase_units: sampleAuthorizeOrder.purchase_units,
-                payment_source: ps,
-                create_time: sampleAuthorizeOrder.create_time
-            };
-        }
-        else {
-            return http:NOT_FOUND;
-        }
+
+        return {
+            id: sampleAuthorizeOrder.id,
+            intent: sampleAuthorizeOrder.intent,
+            status: "APPROVED",
+            purchase_units: sampleAuthorizeOrder.purchase_units,
+            payment_source: ps,
+            create_time: sampleAuthorizeOrder.create_time
+        };
     }
 
     resource isolated function post orders/[string id]/capture(OrderCaptureRequest payload) returns Order|http:NotFound|error {
@@ -148,9 +132,9 @@ service on new http:Listener(9090) {
                 purchase_units: capturedOrder.purchase_units,
                 create_time: capturedOrder.create_time
             };
-        } else {
-            return http:NOT_FOUND;
         }
+
+        return http:NOT_FOUND;
     }
 
     resource isolated function post orders/[string id]/authorize(OrderAuthorizeRequest payload) returns OrderAuthorizeResponse|http:NotFound|error {
@@ -180,9 +164,9 @@ service on new http:Listener(9090) {
                 purchase_units: authorizedOrder.purchase_units,
                 create_time: authorizedOrder.create_time
             };
-        } else {
-            return http:NOT_FOUND;
         }
+
+        return http:NOT_FOUND;
     }
 
     resource isolated function post orders/[string id]/track(OrderTrackerRequest payload) returns Order|http:NotFound|error {
@@ -208,12 +192,10 @@ service on new http:Listener(9090) {
                 purchase_units: trackedOrder.purchase_units,
                 create_time: trackedOrder.create_time
             };
-        } else {
-            return http:NOT_FOUND;
         }
+
+        return http:NOT_FOUND;
     }
 
-    resource isolated function patch orders/[string id]/trackers/[string tracker_id](PatchRequest payload) returns error? {
-        return ();
-    }
+    resource isolated function patch orders/[string id]/trackers/[string tracker_id](PatchRequest payload) {}
 };

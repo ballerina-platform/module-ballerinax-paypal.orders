@@ -14,11 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import paypal.orders.mock as _;
-
 import ballerina/os;
-import ballerina/test;
+import ballerina/lang.runtime;
+import ballerina/log;
+
 import ballerina/uuid;
+import ballerina/test;
 
 configurable boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "true";
 
@@ -57,9 +58,15 @@ PurchaseUnitRequest[] purchaseUnits = [
 
 @test:BeforeSuite
 function initClient() returns error? {
-    if (isLiveServer) {
+    if isLiveServer {
         paypal = check new ({auth: {clientId, clientSecret, tokenUrl}}, serviceUrl);
     } else {
+        check stsListener.attach(sts, "/oauth2");
+        check stsListener.'start();
+
+        runtime:registerListener(stsListener);
+        log:printInfo("STS started on port: " + HTTP_SERVER_PORT.toString() + " (HTTP)");
+
         paypal = check new ({auth: {clientId, clientSecret, tokenUrl}}, serviceUrl);
     }
 }
@@ -73,7 +80,6 @@ function createCaptureOrder() returns error? {
         purchase_units: purchaseUnits
     });
 
-    test:assertNotEquals(response, ());
     test:assertNotEquals(response.id, ());
 
     captureOrderId = check response.id.ensureType();
@@ -88,8 +94,6 @@ function createCaptureOrder() returns error? {
 }
 function getCaptureOrder() returns error? {
     Order response = check paypal->/orders/[captureOrderId].get();
-
-    test:assertNotEquals(response, ());
 
     test:assertEquals(response.id, captureOrderId);
     test:assertEquals(response.intent, "CAPTURE");
@@ -128,8 +132,6 @@ function confirmCaptureOrderPaymentSource() returns error? {
         }
     });
 
-    test:assertNotEquals(response, ());
-
     test:assertEquals(response.id, captureOrderId);
     test:assertEquals(response.status, "APPROVED");
 
@@ -154,8 +156,6 @@ function captureOrder() returns error? {
             }
         }
     });
-
-    test:assertNotEquals(response, ());
 
     test:assertEquals(response.id, captureOrderId);
     test:assertEquals(response.status, "COMPLETED");
@@ -193,8 +193,6 @@ function addTrackingInfo() returns error? {
         status: "IN_TRANSIT",
         carrier: "DPD_RU"
     });
-
-    test:assertNotEquals(response, ());
 
     PurchaseUnit[] purchaseUnits = check response.purchase_units.ensureType();
     test:assertEquals(purchaseUnits.length(), 1);
@@ -236,7 +234,6 @@ function createAuthorizeOrder() returns error? {
         purchase_units: purchaseUnits
     });
 
-    test:assertNotEquals(response, ());
     test:assertNotEquals(response.id, ());
 
     authorizeOrderId = check response.id.ensureType();
@@ -251,8 +248,6 @@ function createAuthorizeOrder() returns error? {
 }
 function getAuthorizeOrder() returns error? {
     Order response = check paypal->/orders/[authorizeOrderId].get();
-
-    test:assertNotEquals(response, ());
 
     test:assertEquals(response.id, authorizeOrderId);
     test:assertEquals(response.intent, "AUTHORIZE");
@@ -275,8 +270,6 @@ function confirmAuthorizeOrderPaymentSource() returns error? {
         }
     });
 
-    test:assertNotEquals(response, ());
-
     test:assertEquals(response.id, authorizeOrderId);
     test:assertEquals(response.status, "APPROVED");
 
@@ -293,8 +286,6 @@ function confirmAuthorizeOrderPaymentSource() returns error? {
 }
 function authorizeOrder() returns error? {
     OrderAuthorizeResponse response = check paypal->/orders/[authorizeOrderId]/authorize.post({});
-
-    test:assertNotEquals(response, ());
 
     test:assertEquals(response.id, authorizeOrderId);
     test:assertEquals(response.status, "COMPLETED");
