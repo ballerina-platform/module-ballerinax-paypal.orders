@@ -36,8 +36,8 @@ public isolated client class Client {
     # Create order
     #
     # + headers - Headers to be sent with the request 
-    # + return - A successful response to an idempotent request returns the HTTP `200 OK` status code with a JSON response body that shows order details. 
-    resource isolated function post orders(order_request payload, OrdersCreateHeaders headers = {}) returns 'order|error {
+    # + return - A successful response to an idempotent request returns the HTTP `200 OK` status code with a JSON response body that shows order details 
+    resource isolated function post orders(OrderRequest payload, OrdersCreateHeaders headers = {}) returns Order|error {
         string resourcePath = string `/orders`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -48,11 +48,11 @@ public isolated client class Client {
 
     # Show order details
     #
-    # + id - The ID of the order that the tracking information is associated with.
+    # + id - The ID of the order that the tracking information is associated with
     # + headers - Headers to be sent with the request 
     # + queries - Queries to be sent with the request 
-    # + return - A successful request returns the HTTP `200 OK` status code and a JSON response body that shows order details. 
-    resource isolated function get orders/[string id](map<string|string[]> headers = {}, *OrdersGetQueries queries) returns 'order|error {
+    # + return - A successful request returns the HTTP `200 OK` status code and a JSON response body that shows order details 
+    resource isolated function get orders/[string id](map<string|string[]> headers = {}, *OrdersGetQueries queries) returns Order|error {
         string resourcePath = string `/orders/${getEncodedUri(id)}`;
         resourcePath = resourcePath + check getPathForQueryParam(queries);
         return self.clientEp->get(resourcePath, headers);
@@ -60,10 +60,10 @@ public isolated client class Client {
 
     # Update order
     #
-    # + id - The ID of the order that the tracking information is associated with.
+    # + id - The ID of the order that the tracking information is associated with
     # + headers - Headers to be sent with the request 
-    # + return - A successful request returns the HTTP `204 No Content` status code with an empty object in the JSON response body. 
-    resource isolated function patch orders/[string id](patch_request payload, map<string|string[]> headers = {}) returns error? {
+    # + return - A successful request returns the HTTP `204 No Content` status code with an empty object in the JSON response body 
+    resource isolated function patch orders/[string id](PatchRequest payload, map<string|string[]> headers = {}) returns error? {
         string resourcePath = string `/orders/${getEncodedUri(id)}`;
         http:Request request = new;
         json jsonBody = jsondata:toJson(payload);
@@ -73,10 +73,10 @@ public isolated client class Client {
 
     # Confirm the Order
     #
-    # + id - The ID of the order that the tracking information is associated with.
+    # + id - The ID of the order that the tracking information is associated with
     # + headers - Headers to be sent with the request 
-    # + return - A successful request indicates that the payment source was added to the Order. A successful request returns the HTTP `200 OK` status code with a JSON response body that shows order details. 
-    resource isolated function post orders/[string id]/confirm\-payment\-source(confirm_order_request payload, OrdersConfirmHeaders headers = {}) returns 'order|error {
+    # + return - A successful request indicates that the payment source was added to the Order. A successful request returns the HTTP `200 OK` status code with a JSON response body that shows order details 
+    resource isolated function post orders/[string id]/confirm\-payment\-source(ConfirmOrderRequest payload, OrdersConfirmHeaders headers = {}) returns Order|error {
         string resourcePath = string `/orders/${getEncodedUri(id)}/confirm-payment-source`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -87,10 +87,10 @@ public isolated client class Client {
 
     # Authorize payment for order
     #
-    # + id - The ID of the order that the tracking information is associated with.
+    # + id - The ID of the order that the tracking information is associated with
     # + headers - Headers to be sent with the request 
-    # + return - A successful response to an idempotent request returns the HTTP `200 OK` status code with a JSON response body that shows authorized payment details. 
-    resource isolated function post orders/[string id]/authorize(order_authorize_request payload, OrdersAuthorizeHeaders headers = {}) returns order_authorize_response|error {
+    # + return - A successful response to an idempotent request returns the HTTP `200 OK` status code with a JSON response body that shows authorized payment details 
+    resource isolated function post orders/[string id]/authorize(OrderAuthorizeRequest payload, OrdersAuthorizeHeaders headers = {}) returns OrderAuthorizeResponse|error {
         string resourcePath = string `/orders/${getEncodedUri(id)}/authorize`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -101,10 +101,10 @@ public isolated client class Client {
 
     # Capture payment for order
     #
-    # + id - The ID of the order that the tracking information is associated with.
+    # + id - The ID of the order that the tracking information is associated with
     # + headers - Headers to be sent with the request 
-    # + return - A successful response to an idempotent request returns the HTTP `200 OK` status code with a JSON response body that shows captured payment details. 
-    resource isolated function post orders/[string id]/capture(order_capture_request payload, OrdersCaptureHeaders headers = {}) returns 'order|error {
+    # + return - A successful response to an idempotent request returns the HTTP `200 OK` status code with a JSON response body that shows captured payment details 
+    resource isolated function post orders/[string id]/capture(OrderCaptureRequest payload, OrdersCaptureHeaders headers = {}) returns Order|error {
         string resourcePath = string `/orders/${getEncodedUri(id)}/capture`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -115,10 +115,10 @@ public isolated client class Client {
 
     # Add tracking information for an Order.
     #
-    # + id - The ID of the order that the tracking information is associated with.
+    # + id - The ID of the order that the tracking information is associated with
     # + headers - Headers to be sent with the request 
-    # + return - A successful response to an idempotent request returns the HTTP `200 OK` status code with a JSON response body that shows tracker details. 
-    resource isolated function post orders/[string id]/track(order_tracker_request payload, OrdersTrackCreateHeaders headers = {}) returns 'order|error {
+    # + return - A successful response to an idempotent request returns the HTTP `200 OK` status code with a JSON response body that shows tracker details 
+    resource isolated function post orders/[string id]/track(OrderTrackerRequest payload, OrdersTrackCreateHeaders headers = {}) returns Order|error {
         string resourcePath = string `/orders/${getEncodedUri(id)}/track`;
         map<string|string[]> httpHeaders = http:getHeaderMap(headers);
         http:Request request = new;
@@ -129,12 +129,12 @@ public isolated client class Client {
 
     # Update or cancel tracking information for a PayPal order
     #
-    # + id - The ID of the order that the tracking information is associated with.
-    # + tracker_id - The order tracking ID.
+    # + id - The ID of the order that the tracking information is associated with
+    # + trackerId - The order tracking ID
     # + headers - Headers to be sent with the request 
-    # + return - A successful request returns the HTTP `204 No Content` status code with an empty object in the JSON response body. 
-    resource isolated function patch orders/[string id]/trackers/[string tracker_id](patch_request payload, map<string|string[]> headers = {}) returns error? {
-        string resourcePath = string `/orders/${getEncodedUri(id)}/trackers/${getEncodedUri(tracker_id)}`;
+    # + return - A successful request returns the HTTP `204 No Content` status code with an empty object in the JSON response body 
+    resource isolated function patch orders/[string id]/trackers/[string trackerId](PatchRequest payload, map<string|string[]> headers = {}) returns error? {
+        string resourcePath = string `/orders/${getEncodedUri(id)}/trackers/${getEncodedUri(trackerId)}`;
         http:Request request = new;
         json jsonBody = jsondata:toJson(payload);
         request.setPayload(jsonBody, "application/json");

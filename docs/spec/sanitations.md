@@ -9,147 +9,258 @@ This document records the sanitation done on top of the official OpenAPI specifi
 The OpenAPI specification is obtained from [PayPal’s official GitHub](https://github.com/paypal/paypal-rest-api-specifications/blob/main/openapi/checkout_orders_v2.json).
 These changes are done in order to improve the overall usability, and as workarounds for some known language limitations.
 
-## 1. Update server URLs
+## 1. Update OAuth2 token URL to relative URL.
 
-**Location**: `servers`
+**Location**: `components.securitySchemes.Oauth2.flows.clientCredentials.tokenUrl`
 
-**Original**:
+**Original**: `"tokenUrl": "/v1/oauth2/token"`
 
-```json
-"servers": [
-  {
-    "url": "https://api-m.sandbox.paypal.com",
-    "description": "PayPal Sandbox Environment"
-  },
-  {
-    "url": "https://api-m.paypal.com",
-    "description": "PayPal Live Environment"
-  }
-]
-```
-
-**Sanitized**:
-
-```json
-"servers": [
-  {
-    "url": "https://api-m.sandbox.paypal.com/v2/checkout",
-    "description": "PayPal Sandbox Environment"
-  },
-  {
-    "url": "https://api-m.paypal.com/v2/checkout",
-    "description": "PayPal Live Environment"
-  }
-]
-```
+**Sanitized**: `"tokenUrl": "https://api-m.sandbox.paypal.com/v1/oauth2/token"`
 
 ```diff
-"servers": [
-  {
--    "url": "https://api-m.sandbox.paypal.com",
-+    "url": "https://api-m.sandbox.paypal.com/v2/checkout",
-    "description": "PayPal Sandbox Environment"
-  },
-  {
--    "url": "https://api-m.paypal.com",
-+    "url": "https://api-m.paypal.com/v2/checkout",
-    "description": "PayPal Live Environment"
-  }
-]
+- "tokenUrl": "/v1/oauth2/token"
++ "tokenUrl": "https://api-m.sandbox.paypal.com/v1/oauth2/token"
 ```
 
-**Reason**: Adding `/v2/checkout` to server URLs keeps versioning centralized.
+**Reason**: The relative path does not resolve correctly against the OAuth2 endpoint.
 
-## 2. Update `tokenUrl` to absolute URL
-
-**Location**: `components.securitySchemes.Oauth2.flows.clientCredentials`
+## 2. Replace `Schema'<Code>` keys with related status codes
 
 **Original**:
 
 ```json
-"clientCredentials": {
-  "tokenUrl": "/v1/oauth2/token",
-  "scopes": {
-    ...
-  }
+"Schema'400": {
+    "properties": {
+        "details": {
+            "type": "array",
+            "items": {
+                "$ref": "#/components/schemas/400Details"
+            }
+        }
+    }
+},
+"Schema'401": {
+    "properties": {
+        "details": {
+            "type": "array",
+            "items": {
+                "$ref": "#/components/schemas/401Details"
+            }
+        }
+    }
 }
 ```
-
-**Sanitized**:
 
 ```json
-"clientCredentials": {
-  "tokenUrl": "https://api-m.sandbox.paypal.com/v1/oauth2/token",
-  "scopes": {
-    ...
-  }
-}
-```
-
-```diff
-"clientCredentials": {
--  "tokenUrl": "/v1/oauth2/token",
-+  "tokenUrl": "https://api-m.sandbox.paypal.com/v1/oauth2/token",
-  "scopes": {
-    ...
-  }
-}
-```
-
-**Reason**: Prevents the relative path from being appended to the server URL, avoiding an invalid token endpoint.
-
-## 3. Remove path prefix
-
-**Location**: `paths`
-
-**Original**:
-
-```json
-"paths": {
-  "/v2/checkout/orders": { ... },
-  "/v2/checkout/orders/{id}": { ... },
-  "/v2/checkout/orders/{id}/confirm-payment-source": { ... },
-  "/v2/checkout/orders/{id}/authorize": { ... },
-  "/v2/checkout/orders/{id}/capture": { ... },
-  "/v2/checkout/orders/{id}/track": { ... },
-  "/v2/checkout/orders/{id}/trackers/{tracker_id}": { ... }
+"InlineResponse400": {
+    "allOf": [
+        {
+            "$ref": "#/components/schemas/Error400"
+        },
+        {
+            "$ref": "#/components/schemas/Schema'400"
+        }
+    ]
+},
+"InlineResponse401": {
+    "allOf": [
+        {
+            "$ref": "#/components/schemas/Error401"
+        },
+        {
+            "$ref": "#/components/schemas/Schema'401"
+        }
+    ]
 }
 ```
 
 **Sanitized**:
 
 ```json
-"paths": {
-  "/orders": { ... },
-  "/orders/{id}": { ... },
-  "/orders/{id}/confirm-payment-source": { ... },
-  "/orders/{id}/authorize": { ... },
-  "/orders/{id}/capture": { ... },
-  "/orders/{id}/track": { ... },
-  "/orders/{id}/trackers/{tracker_id}": { ... }
+"BadRequest": {
+    "properties": {
+        "details": {
+            "type": "array",
+            "items": {
+                "$ref": "#/components/schemas/400Details"
+            }
+        }
+    }
+},
+"Unauthorized": {
+    "properties": {
+        "details": {
+            "type": "array",
+            "items": {
+                "$ref": "#/components/schemas/401Details"
+            }
+        }
+    }
+}
+```
+
+```json
+"InlineResponse400": {
+    "allOf": [
+        {
+            "$ref": "#/components/schemas/Error400"
+        },
+        {
+            "$ref": "#/components/schemas/BadRequest"
+        }
+    ]
+},
+"InlineResponse401": {
+    "allOf": [
+        {
+            "$ref": "#/components/schemas/Error401"
+        },
+        {
+            "$ref": "#/components/schemas/Unauthorized"
+        }
+    ]
 }
 ```
 
 ```diff
-"paths": {
--  "/v2/checkout/orders": { ... },
-+  "/orders": { ... },
--  "/v2/checkout/orders/{id}": { ... },
-+  "/orders/{id}": { ... },
--  "/v2/checkout/orders/{id}/confirm-payment-source": { ... },
-+  "/orders/{id}/confirm-payment-source": { ... },
--  "/v2/checkout/orders/{id}/authorize": { ... },
-+  "/orders/{id}/authorize": { ... },
--  "/v2/checkout/orders/{id}/capture": { ... },
-+  "/orders/{id}/capture": { ... },
--  "/v2/checkout/orders/{id}/track": { ... },
-+  "/orders/{id}/track": { ... },
--  "/v2/checkout/orders/{id}/trackers/{tracker_id}": { ... }
-+  "/orders/{id}/trackers/{tracker_id}": { ... }
+- "Schema'400": {
++ "BadRequest": {
+    "properties": {
+        "details": {
+            "type": "array",
+            "items": {
+                "$ref": "#/components/schemas/400Details"
+            }
+        }
+    }
+},
+- "Schema'401": {
++ "Unauthorized": {
+    "properties": {
+        "details": {
+            "type": "array",
+            "items": {
+                "$ref": "#/components/schemas/401Details"
+            }
+        }
+    }
 }
 ```
 
-**Reason**: Removing `/v2/checkout` from paths makes them shorter and consistent now that the version is already in the server URLs.
+```diff
+"InlineResponse400": {
+    "allOf": [
+        {
+            "$ref": "#/components/schemas/Error400"
+        },
+        {
+-           "$ref": "#/components/schemas/Schema'400"
++           "$ref": "#/components/schemas/BadRequest"
+        }
+    ]
+},
+"InlineResponse401": {
+    "allOf": [
+        {
+            "$ref": "#/components/schemas/Error401"
+        },
+        {
+-            "$ref": "#/components/schemas/Schema'401"
++            "$ref": "#/components/schemas/Unauthorized"
+        }
+    ]
+}
+```
+
+**Reason**: Apostrophes in schema names generate invalid JSON Schema; plain identifiers prevent generator errors.
+
+**Reason**: JSON keys with apostrophes (e.g., `Schema'404`) are invalid and break schema parsing; using plain, descriptive identifiers (e.g., `NotFound`) ensures valid JSON Schema and prevents generator errors. See GitHub issue [#8011](https://github.com/ballerina-platform/ballerina-library/issues/8011) for details.
+
+
+## 3. Remove `Money2` and `CurrencyCode2`; replace `Money2` references with `Money`
+
+**Location**:
+
+- `components.schemas.Money2` and `components.schemas.CurrencyCode2`
+- `components.schemas.ApplePayDecryptedTokenData.properties.transaction_amount.allOf[0]`
+
+**Original**:
+
+```json
+"Money2": {
+    "title": "Money",
+    "required": ["currency_code", "value"],
+    "type": "object",
+    "properties": {
+        ...
+    }
+}
+```
+
+```json
+"CurrencyCode2": {
+    "maxLength": 3,
+    "minLength": 3,
+    ...
+}
+```
+
+```json
+"transaction_amount": {
+    "allOf": [
+        {
+            "$ref": "#/components/schemas/Money2"
+        }
+    ],
+    "x-ballerina-name": "transactionAmount"
+}
+```
+
+**Sanitized**:
+
+```json
+"transaction_amount": {
+    "allOf": [
+        {
+            "$ref": "#/components/schemas/Money"
+        }
+    ],
+    "x-ballerina-name": "transactionAmount"
+}
+```
+
+```diff
+- "Money2": {
+-     "title": "Money",
+-     "required": ["currency_code", "value"],
+-     "type": "object",
+-     "properties": {
+-         ...
+-     }
+- }
+```
+
+```diff
+- "CurrencyCode2": {
+-     "maxLength": 3,
+-     "minLength": 3,
+-     ...
+- }
+```
+
+```diff
+"transaction_amount": {
+    "allOf": [
+        {
+-           "$ref": "#/components/schemas/Money2"
++           "$ref": "#/components/schemas/Money"
+        }
+    ],
+    "x-ballerina-name": "transactionAmount"
+}
+```
+
+**Reason**:  `Money2` and `CurrencyCode2` duplicate the existing `Money` schema, so using one Money definition avoids redundancy
 
 ## 4. Change default prefer header value
 
@@ -192,55 +303,109 @@ These changes are done in order to improve the overall usability, and as workaro
 
 **Reason**: Setting the default to return=representation means clients get the full response.
 
-## 5. Rename `customer` to `wallet_customer`
+## 5. Override customer field to avoid redeclaration errors
 
-**Location**: `components.schemas.PaypalWalletVaultResponseAllOf2`
+**Location**: `components.schemas.PaypalWalletVaultResponse`
 
 **Original**:
 
 ```json
-"PaypalWalletVaultResponseAllOf2" : {
-  "properties" : {
-    "customer" : {
-      "$ref" : "#/components/schemas/paypal_wallet_customer"
+"PaypalWalletVaultResponse": {
+  ...
+  "allOf": [
+    {
+      "$ref": "#/components/schemas/VaultResponse"
     },
-    ...
-  }
+    {
+      "$ref": "#/components/schemas/PaypalWalletVaultResponseAllOf2"
+    }
+  ]
 }
 ```
 
 **Sanitized**:
 
 ```json
-"PaypalWalletVaultResponseAllOf2" : {
-  "properties" : {
-    "wallet_customer" : {
-      "$ref" : "#/components/schemas/paypal_wallet_customer"
+"PaypalWalletVaultResponse": {
+  ...
+  "allOf": [
+    {
+      "$ref": "#/components/schemas/VaultResponse"
     },
-    ...
-  }
+    {
+      "$ref": "#/components/schemas/PaypalWalletVaultResponseAllOf2"
+    },
+    {
+      "type": "object",
+      "properties": {
+        "customer": {
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/Customer"
+            }
+          ],
+          "x-ballerina-name-ignore": "customer"
+        }
+      }
+    }
+  ]
 }
 ```
 
 ```diff
-"PaypalWalletVaultResponseAllOf2" : {
-  "properties" : {
--    "customer" : {
-+    "wallet_customer" : {
-      "$ref" : "#/components/schemas/paypal_wallet_customer"
+"PaypalWalletVaultResponse": {
+  ...
+  "allOf": [
+    {
+      "$ref": "#/components/schemas/VaultResponse"
     },
-    ...
-  }
+    {
+      "$ref": "#/components/schemas/PaypalWalletVaultResponseAllOf2"
+-    }
++    },
++    {
++      "type": "object",
++      "properties": {
++        "customer": {
++          "allOf": [
++            {
++              "$ref": "#/components/schemas/Customer"
++            }
++          ],
++          "x-ballerina-name-ignore": "customer"
++        }
++      }
++    }
+  ]
 }
 ```
 
-**Reason**: Renaming `customer` to `wallet_customer` prevents redeclared symbol errors.
+**Reason**: Prevent duplicate symbol conflicts by explicitly defining the `customer` property. Also addresses GitHub issue [#8042](https://github.com/ballerina-platform/ballerina-library/issues/8042)
+
+## 6. Avoid json data annotations due to lang bug
+
+**Original**:
+
+```json
+"x-ballerina-name": "countryCode"
+```
+
+**Sanitized**:
+
+```json
+"x-ballerina-name-ignore": "countryCode"
+```
+
+```diff
+- "x-ballerina-name": "countryCode"
++ "x-ballerina-name-ignore": "countryCode"
+```
+
+**Reason**: Due to issue [#38535](https://github.com/ballerina-platform/ballerina-lang/issues/38535); the data binding fails for the fields which have json data name annotations. above chagne will avoid adding this annotations to the fields.
 
 ## OpenAPI CLI command
 
 The following command was used to generate the Ballerina client from the OpenAPI specification. The command should be executed from the repository root directory.
-
-> Note: The flattened OpenAPI specification must be used for Ballerina client generation to prevent type-inclusion [issue](https://github.com/ballerina-platform/ballerina-lang/issues/38535#issuecomment-2973521948) in the generated types.
 
 ```bash
 bal openapi -i docs/spec/openapi.json --mode client -o ballerina

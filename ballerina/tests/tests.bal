@@ -36,7 +36,7 @@ string captureOrderTrackingId = "";
 
 string authorizeOrderId = "";
 
-purchase_unit_request[] purchaseUnits = [
+PurchaseUnitRequest[] purchaseUnits = [
     {
         amount: {
             value: "200.00",
@@ -68,7 +68,7 @@ function initClient() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 function createCaptureOrder() returns error? {
-    'order response = check paypal->/orders.post({
+    Order response = check paypal->/orders.post({
         intent: "CAPTURE",
         purchase_units: purchaseUnits
     });
@@ -87,7 +87,7 @@ function createCaptureOrder() returns error? {
     dependsOn: [createCaptureOrder]
 }
 function getCaptureOrder() returns error? {
-    'order response = check paypal->/orders/[captureOrderId].get();
+    Order response = check paypal->/orders/[captureOrderId].get();
 
     test:assertNotEquals(response, ());
 
@@ -119,7 +119,7 @@ function updateCaptureOrder() returns error? {
     dependsOn: [updateCaptureOrder]
 }
 function confirmCaptureOrderPaymentSource() returns error? {
-    'order response = check paypal->/orders/[captureOrderId]/confirm\-payment\-source.post({
+    Order response = check paypal->/orders/[captureOrderId]/confirm\-payment\-source.post({
         payment_source: {
             card: {
                 number: "4032037064388131",
@@ -133,8 +133,8 @@ function confirmCaptureOrderPaymentSource() returns error? {
     test:assertEquals(response.id, captureOrderId);
     test:assertEquals(response.status, "APPROVED");
 
-    payment_source_response ps = check response.payment_source.ensureType();
-    card_response cr = check ps.card.ensureType();
+    PaymentSourceResponse ps = check response.payment_source.ensureType();
+    CardResponse cr = check ps.card.ensureType();
 
     test:assertEquals(cr.last_digits, "8131");
     test:assertEquals(cr.expiry, "2035-12");
@@ -145,7 +145,7 @@ function confirmCaptureOrderPaymentSource() returns error? {
     dependsOn: [confirmCaptureOrderPaymentSource]
 }
 function captureOrder() returns error? {
-    'order response = check paypal->/orders/[captureOrderId]/capture.post({
+    Order response = check paypal->/orders/[captureOrderId]/capture.post({
         payment_source: {
             card: {
                 name: "John Doe",
@@ -162,17 +162,17 @@ function captureOrder() returns error? {
 
     test:assertNotEquals(response.purchase_units, ());
 
-    purchase_unit[] purchaseUnits = check response.purchase_units.ensureType();
+    PurchaseUnit[] purchaseUnits = check response.purchase_units.ensureType();
     test:assertEquals(purchaseUnits.length(), 1);
 
-    purchase_unit pu = purchaseUnits[0];
+    PurchaseUnit pu = purchaseUnits[0];
     test:assertEquals(pu.reference_id, "default");
 
-    payment_collection pc = check pu.payments.ensureType();
-    capture[] captures = check pc.captures.ensureType();
+    PaymentCollection pc = check pu.payments.ensureType();
+    Capture[] captures = check pc.captures.ensureType();
     test:assertEquals(captures.length(), 1);
 
-    capture cap = captures[0];
+    Capture cap = captures[0];
     test:assertEquals(cap.status, "COMPLETED");
     test:assertNotEquals(cap.id, ());
 
@@ -186,7 +186,7 @@ function captureOrder() returns error? {
 function addTrackingInfo() returns error? {
     string trackingNumber = uuid:createRandomUuid().toString();
 
-    'order response = check paypal->/orders/[captureOrderId]/track.post({
+    Order response = check paypal->/orders/[captureOrderId]/track.post({
         transaction_id: captureOrderId,
         capture_id: captureOrderPaymentCaptureId,
         tracking_number: trackingNumber,
@@ -196,20 +196,20 @@ function addTrackingInfo() returns error? {
 
     test:assertNotEquals(response, ());
 
-    purchase_unit[] purchaseUnits = check response.purchase_units.ensureType();
+    PurchaseUnit[] purchaseUnits = check response.purchase_units.ensureType();
     test:assertEquals(purchaseUnits.length(), 1);
 
-    purchase_unit pu = purchaseUnits[0];
+    PurchaseUnit pu = purchaseUnits[0];
     test:assertEquals(pu.reference_id, "default");
 
-    shipping_with_tracking_details trackingDetails = check pu.shipping.ensureType();
+    ShippingWithTrackingDetails trackingDetails = check pu.shipping.ensureType();
 
     test:assertNotEquals(trackingDetails, ());
 
-    tracker[] trackers = check trackingDetails.trackers.ensureType();
+    Tracker[] trackers = check trackingDetails.trackers.ensureType();
     test:assertEquals(trackers.length(), 1);
 
-    tracker tr = trackers[0];
+    Tracker tr = trackers[0];
     captureOrderTrackingId = check tr.id.ensureType();
 }
 
@@ -231,7 +231,7 @@ function updateTrackingInfo() returns error? {
     groups: ["live_tests", "mock_tests"]
 }
 function createAuthorizeOrder() returns error? {
-    'order response = check paypal->/orders.post({
+    Order response = check paypal->/orders.post({
         intent: "AUTHORIZE",
         purchase_units: purchaseUnits
     });
@@ -250,7 +250,7 @@ function createAuthorizeOrder() returns error? {
     dependsOn: [createAuthorizeOrder]
 }
 function getAuthorizeOrder() returns error? {
-    'order response = check paypal->/orders/[authorizeOrderId].get();
+    Order response = check paypal->/orders/[authorizeOrderId].get();
 
     test:assertNotEquals(response, ());
 
@@ -266,7 +266,7 @@ function getAuthorizeOrder() returns error? {
     dependsOn: [getAuthorizeOrder]
 }
 function confirmAuthorizeOrderPaymentSource() returns error? {
-    'order response = check paypal->/orders/[authorizeOrderId]/confirm\-payment\-source.post({
+    Order response = check paypal->/orders/[authorizeOrderId]/confirm\-payment\-source.post({
         payment_source: {
             card: {
                 number: "4032037064388131",
@@ -280,8 +280,8 @@ function confirmAuthorizeOrderPaymentSource() returns error? {
     test:assertEquals(response.id, authorizeOrderId);
     test:assertEquals(response.status, "APPROVED");
 
-    payment_source_response ps = check response.payment_source.ensureType();
-    card_response cr = check ps.card.ensureType();
+    PaymentSourceResponse ps = check response.payment_source.ensureType();
+    CardResponse cr = check ps.card.ensureType();
 
     test:assertEquals(cr.last_digits, "8131");
     test:assertEquals(cr.expiry, "2035-12");
@@ -292,7 +292,7 @@ function confirmAuthorizeOrderPaymentSource() returns error? {
     dependsOn: [confirmAuthorizeOrderPaymentSource]
 }
 function authorizeOrder() returns error? {
-    order_authorize_response response = check paypal->/orders/[authorizeOrderId]/authorize.post({});
+    OrderAuthorizeResponse response = check paypal->/orders/[authorizeOrderId]/authorize.post({});
 
     test:assertNotEquals(response, ());
 
@@ -301,17 +301,17 @@ function authorizeOrder() returns error? {
 
     test:assertNotEquals(response.purchase_units, ());
 
-    purchase_unit[] purchaseUnits = check response.purchase_units.ensureType();
+    PurchaseUnit[] purchaseUnits = check response.purchase_units.ensureType();
     test:assertEquals(purchaseUnits.length(), 1);
 
-    purchase_unit pu = purchaseUnits[0];
+    PurchaseUnit pu = purchaseUnits[0];
     test:assertEquals(pu.reference_id, "default");
 
-    payment_collection pc = check pu.payments.ensureType();
-    authorization_with_additional_data[] authorizations = check pc.authorizations.ensureType();
+    PaymentCollection pc = check pu.payments.ensureType();
+    AuthorizationWithAdditionalData[] authorizations = check pc.authorizations.ensureType();
     test:assertEquals(authorizations.length(), 1);
 
-    authorization_with_additional_data auth = authorizations[0];
+    AuthorizationWithAdditionalData auth = authorizations[0];
     test:assertEquals(auth.status, "CREATED");
     test:assertNotEquals(auth.id, ());
 
