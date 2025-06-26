@@ -14,12 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/os;
 import ballerina/lang.runtime;
 import ballerina/log;
-
-import ballerina/uuid;
+import ballerina/os;
 import ballerina/test;
+import ballerina/uuid;
 
 configurable boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "true";
 
@@ -37,7 +36,7 @@ string captureOrderTrackingId = "";
 
 string authorizeOrderId = "";
 
-PurchaseUnitRequest[] purchaseUnits = [
+const purchaseUnits = [
     {
         amount: {
             value: "200.00",
@@ -65,7 +64,7 @@ function initClient() returns error? {
         check stsListener.'start();
 
         runtime:registerListener(stsListener);
-        log:printInfo("STS started on port: " + HTTP_SERVER_PORT.toString() + " (HTTP)");
+        log:printInfo(string `STS started on port: ${HTTP_SERVER_PORT} (HTTP)`);
 
         paypal = check new ({auth: {clientId, clientSecret, tokenUrl}}, serviceUrl);
     }
@@ -107,7 +106,7 @@ function getCaptureOrder() returns error? {
     dependsOn: [getCaptureOrder]
 }
 function updateCaptureOrder() returns error? {
-    string invoiceId = uuid:createRandomUuid().toString();
+    string invoiceId = uuid:createRandomUuid();
 
     check paypal->/orders/[captureOrderId].patch([
         {
@@ -116,6 +115,22 @@ function updateCaptureOrder() returns error? {
             value: invoiceId
         }
     ]);
+
+    if isLiveServer {
+        Order response = check paypal->/orders/[captureOrderId].get();
+
+        PurchaseUnit[]? purchaseUnits = response.purchase_units;
+        if purchaseUnits is () {
+            test:assertFail("purchase units should be present in order response");
+        }
+
+        test:assertEquals(purchaseUnits.length(), 1, "the purchase units length should be one");
+
+        PurchaseUnit pu = purchaseUnits[0];
+        test:assertEquals(pu.reference_id, "default");
+
+        test:assertEquals(pu.invoice_id, invoiceId, "the invoice id should be updated");
+    }
 }
 
 @test:Config {
@@ -160,17 +175,19 @@ function captureOrder() returns error? {
     test:assertEquals(response.id, captureOrderId);
     test:assertEquals(response.status, "COMPLETED");
 
-    test:assertNotEquals(response.purchase_units, ());
+    PurchaseUnit[]? purchaseUnits = response.purchase_units;
+    if purchaseUnits is () {
+        test:assertFail("purchase units should be present in order response");
+    }
 
-    PurchaseUnit[] purchaseUnits = check response.purchase_units.ensureType();
-    test:assertEquals(purchaseUnits.length(), 1);
+    test:assertEquals(purchaseUnits.length(), 1, "the purchase units length should be one");
 
     PurchaseUnit pu = purchaseUnits[0];
     test:assertEquals(pu.reference_id, "default");
 
     PaymentCollection pc = check pu.payments.ensureType();
     Capture[] captures = check pc.captures.ensureType();
-    test:assertEquals(captures.length(), 1);
+    test:assertEquals(captures.length(), 1, "the captures length should be one");
 
     Capture cap = captures[0];
     test:assertEquals(cap.status, "COMPLETED");
@@ -184,7 +201,7 @@ function captureOrder() returns error? {
     dependsOn: [captureOrder]
 }
 function addTrackingInfo() returns error? {
-    string trackingNumber = uuid:createRandomUuid().toString();
+    string trackingNumber = uuid:createRandomUuid();
 
     Order response = check paypal->/orders/[captureOrderId]/track.post({
         transaction_id: captureOrderId,
@@ -194,15 +211,20 @@ function addTrackingInfo() returns error? {
         carrier: "DPD_RU"
     });
 
-    PurchaseUnit[] purchaseUnits = check response.purchase_units.ensureType();
-    test:assertEquals(purchaseUnits.length(), 1);
+    PurchaseUnit[]? purchaseUnits = response.purchase_units;
+    if purchaseUnits is () {
+        test:assertFail("purchase units should be present in order response");
+    }
+
+    test:assertEquals(purchaseUnits.length(), 1, "the purchase units length should be one");
 
     PurchaseUnit pu = purchaseUnits[0];
     test:assertEquals(pu.reference_id, "default");
 
-    ShippingWithTrackingDetails trackingDetails = check pu.shipping.ensureType();
-
-    test:assertNotEquals(trackingDetails, ());
+    ShippingWithTrackingDetails? trackingDetails = pu.shipping;
+    if trackingDetails is () {
+        test:assertFail("shipping tracking details should be present in order response");
+    }
 
     Tracker[] trackers = check trackingDetails.trackers.ensureType();
     test:assertEquals(trackers.length(), 1);
@@ -290,10 +312,12 @@ function authorizeOrder() returns error? {
     test:assertEquals(response.id, authorizeOrderId);
     test:assertEquals(response.status, "COMPLETED");
 
-    test:assertNotEquals(response.purchase_units, ());
+    PurchaseUnit[]? purchaseUnits = response.purchase_units;
+    if purchaseUnits is () {
+        test:assertFail("purchase units should be present in order response");
+    }
 
-    PurchaseUnit[] purchaseUnits = check response.purchase_units.ensureType();
-    test:assertEquals(purchaseUnits.length(), 1);
+    test:assertEquals(purchaseUnits.length(), 1, "the purchase units length should be one");
 
     PurchaseUnit pu = purchaseUnits[0];
     test:assertEquals(pu.reference_id, "default");
@@ -305,6 +329,4 @@ function authorizeOrder() returns error? {
     AuthorizationWithAdditionalData auth = authorizations[0];
     test:assertEquals(auth.status, "CREATED");
     test:assertNotEquals(auth.id, ());
-
-    captureOrderPaymentCaptureId = check auth.id.ensureType();
 }

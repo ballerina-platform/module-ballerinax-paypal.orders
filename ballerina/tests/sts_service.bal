@@ -23,18 +23,16 @@ http:Listener stsListener = check new (HTTP_SERVER_PORT);
 
 http:Service sts = service object {
     resource function post token() returns json {
-        json response = {
+        return {
             "access_token": "test-access-token",
             "token_type": "example",
             "expires_in": TOKEN_VALIDITY_PERIOD,
             "example_parameter": "example_value"
         };
-
-        return response;
     }
 
     resource function post introspect() returns json {
-        json response = {
+        return {
             "active": true,
             "scope": "read write",
             "client_id": "test-client-id",
@@ -50,8 +48,5 @@ http:Service sts = service object {
             "extension_field": "twenty-seven",
             "scp": "admin"
         };
-
-        return response;
     }
-
 };
