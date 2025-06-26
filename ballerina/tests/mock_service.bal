@@ -106,96 +106,99 @@ service on new http:Listener(9090) {
     }
 
     resource isolated function post orders/[string id]/capture(OrderCaptureRequest payload) returns Order|http:NotFound|error {
-        if id == sampleCaptureOrder.id {
-            Order capturedOrder = check sampleCaptureOrder.cloneWithType(Order);
-            PurchaseUnit[]? ps = capturedOrder.purchase_units;
-            if ps is PurchaseUnit[] {
-                ps[0].payments = {
-                    captures: [
-                        {
-                            id: "6JE657202M751084D",
-                            status: "COMPLETED",
-                            amount: {
-                                currency_code: "USD",
-                                value: "200.00"
-                            },
-                            create_time: "2025-06-17T08:53:19Z"
-                        }
-                    ]
-                };
-            }
+        if id != sampleCaptureOrder.id {
+            return http:NOT_FOUND;
+        }
 
-            return {
-                id: capturedOrder.id,
-                intent: capturedOrder.intent,
-                status: "COMPLETED",
-                purchase_units: capturedOrder.purchase_units,
-                create_time: capturedOrder.create_time
+        Order capturedOrder = check sampleCaptureOrder.cloneWithType();
+        PurchaseUnit[]? ps = capturedOrder.purchase_units;
+        if ps is PurchaseUnit[] {
+            ps[0].payments = {
+                captures: [
+                    {
+                        id: "6JE657202M751084D",
+                        status: "COMPLETED",
+                        amount: {
+                            currency_code: "USD",
+                            value: "200.00"
+                        },
+                        create_time: "2025-06-17T08:53:19Z"
+                    }
+                ]
             };
         }
 
-        return http:NOT_FOUND;
+        return {
+            id: capturedOrder.id,
+            intent: capturedOrder.intent,
+            status: "COMPLETED",
+            purchase_units: capturedOrder.purchase_units,
+            create_time: capturedOrder.create_time
+        };
+
     }
 
     resource isolated function post orders/[string id]/authorize(OrderAuthorizeRequest payload) returns OrderAuthorizeResponse|http:NotFound|error {
-        if id == sampleAuthorizeOrder.id {
-            Order authorizedOrder = check sampleAuthorizeOrder.cloneWithType(Order);
-            PurchaseUnit[]? ps = authorizedOrder.purchase_units;
-            if ps is PurchaseUnit[] {
-                ps[0].payments = {
-                    authorizations: [
-                        {
-                            id: "6JE657202M751084E",
-                            status: "CREATED",
-                            amount: {
-                                currency_code: "USD",
-                                value: "200.00"
-                            },
-                            create_time: "2025-06-17T08:53:19Z"
-                        }
-                    ]
-                };
-            }
+        if id != sampleAuthorizeOrder.id {
+            return http:NOT_FOUND;
+        }
 
-            return {
-                id: authorizedOrder.id,
-                intent: authorizedOrder.intent,
-                status: "COMPLETED",
-                purchase_units: authorizedOrder.purchase_units,
-                create_time: authorizedOrder.create_time
+        Order authorizedOrder = check sampleAuthorizeOrder.cloneWithType();
+        PurchaseUnit[]? ps = authorizedOrder.purchase_units;
+        if ps is PurchaseUnit[] {
+            ps[0].payments = {
+                authorizations: [
+                    {
+                        id: "6JE657202M751084E",
+                        status: "CREATED",
+                        amount: {
+                            currency_code: "USD",
+                            value: "200.00"
+                        },
+                        create_time: "2025-06-17T08:53:19Z"
+                    }
+                ]
             };
         }
 
-        return http:NOT_FOUND;
+        return {
+            id: authorizedOrder.id,
+            intent: authorizedOrder.intent,
+            status: "COMPLETED",
+            purchase_units: authorizedOrder.purchase_units,
+            create_time: authorizedOrder.create_time
+        };
+
     }
 
     resource isolated function post orders/[string id]/track(OrderTrackerRequest payload) returns Order|http:NotFound|error {
-        if id == sampleCaptureOrder.id {
-            Order trackedOrder = check sampleCaptureOrder.cloneWithType(Order);
-            PurchaseUnit[]? ps = trackedOrder.purchase_units;
-            if ps is PurchaseUnit[] {
-                ps[0].shipping = {
-                    trackers: [
-                        {
-                            id: "TRACKER123456",
-                            "tracking_number": payload.tracking_number,
-                            "status": payload.status
-                        }
-                    ]
-                };
-            }
+        if id != sampleCaptureOrder.id {
+            return http:NOT_FOUND;
+        }
 
-            return {
-                id: trackedOrder.id,
-                intent: trackedOrder.intent,
-                status: trackedOrder.status,
-                purchase_units: trackedOrder.purchase_units,
-                create_time: trackedOrder.create_time
+        Order trackedOrder = check sampleCaptureOrder.cloneWithType();
+        PurchaseUnit[]? ps = trackedOrder.purchase_units;
+        if ps is PurchaseUnit[] {
+            ps[0].shipping = {
+                trackers: [
+                    {
+                        id: "TRACKER123456",
+                        "tracking_number": payload.tracking_number,
+                        "status": payload.status
+                    }
+                ]
             };
         }
 
-        return http:NOT_FOUND;
+        return {
+            id: trackedOrder.id,
+            intent: trackedOrder.intent,
+            status: trackedOrder.status,
+            purchase_units: trackedOrder.purchase_units,
+            create_time: trackedOrder.create_time
+        };
+
     }
 
-    resource isolated function patch orders/[string id]/trackers/[string tracker_id](PatchRequest payload) {}
+    resource isolated function patch orders/[string id]/trackers/[string trackerId](PatchRequest payload) {}
 };
