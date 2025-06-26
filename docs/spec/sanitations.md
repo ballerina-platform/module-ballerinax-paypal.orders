@@ -3,11 +3,9 @@ _Created_: 18 June 2025
 _Updated_: 18 June 2025
 _Edition_: Swan Lake
 
-# Sanitation for OpenAPI specification
+# Sanitations for the OpenAPI specification
 
-This document records the sanitation done on top of the official OpenAPI specification from Paypal Orders.
-The OpenAPI specification is obtained from [PayPal’s official GitHub](https://github.com/paypal/paypal-rest-api-specifications/blob/main/openapi/checkout_orders_v2.json).
-These changes are done in order to improve the overall usability, and as workarounds for some known language limitations.
+This document outlines the manual sanitizations applied to the PayPal Checkout Orders v2 OpenAPI specification. The official specification is initially retrieved from [PayPal’s official GitHub repository](https://github.com/paypal/paypal-rest-api-specifications/blob/main/openapi/checkout_orders_v2.json). After being flattened and aligned by the Ballerina OpenAPI tool, these manual modifications are implemented to improve the developer experience and to circumvent certain language and tool limitations.
 
 ## 1. Update OAuth2 token URL to relative URL.
 
@@ -24,7 +22,7 @@ These changes are done in order to improve the overall usability, and as workaro
 
 **Reason**: The relative path does not resolve correctly against the OAuth2 endpoint.
 
-## 2. Replace `Schema'<Code>` keys with related status codes
+## 2. Fix invalid generated schema names with Apostrophe
 
 **Original**:
 
@@ -177,7 +175,7 @@ These changes are done in order to improve the overall usability, and as workaro
 **Reason**: JSON keys with apostrophes (e.g., `Schema'404`) are invalid and break schema parsing; using plain, descriptive identifiers (e.g., `NotFound`) ensures valid JSON Schema and prevents generator errors. See GitHub issue [#8011](https://github.com/ballerina-platform/ballerina-library/issues/8011) for details.
 
 
-## 3. Remove `Money2` and `CurrencyCode2`; replace `Money2` references with `Money`
+## 3. Remove duplicate schema entries
 
 **Location**:
 
@@ -262,7 +260,7 @@ These changes are done in order to improve the overall usability, and as workaro
 
 **Reason**:  `Money2` and `CurrencyCode2` duplicate the existing `Money` schema, so using one Money definition avoids redundancy
 
-## 4. Change default prefer header value
+## 4. Change the default response behaviour to obtain the entire representation instead of the minimal representation
 
 **Location**: `components.parameters.prefer`
 
@@ -303,7 +301,7 @@ These changes are done in order to improve the overall usability, and as workaro
 
 **Reason**: Setting the default to return=representation means clients get the full response.
 
-## 5. Override customer field to avoid redeclaration errors
+## 5. Duplicate the field in the schema to avoid redeclared field error
 
 **Location**: `components.schemas.PaypalWalletVaultResponse`
 
@@ -382,7 +380,7 @@ These changes are done in order to improve the overall usability, and as workaro
 
 **Reason**: Prevent duplicate symbol conflicts by explicitly defining the `customer` property. Also addresses GitHub issue [#8042](https://github.com/ballerina-platform/ballerina-library/issues/8042)
 
-## 6. Avoid json data annotations due to lang bug
+## 6. Avoid property name sanitisation to avoid data-binding error which is caused by a language limitation
 
 **Original**:
 
