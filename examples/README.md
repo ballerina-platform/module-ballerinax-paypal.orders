@@ -1,30 +1,40 @@
 # Examples
 
-The `ballerinax/paypal.orders` connector provides practical examples illustrating usage in various scenarios.
+The `ballerinax/paypal.orders` connector provides practical examples illustrating usage in various scenarios. Explore these [examples](https://github.com/ballerina-platform/module-ballerinax-paypal.orders/tree/main/examples), covering use cases such as executing a full order lifecycle - creating, updating, confirming, and capturing payments - as well as enriching orders with shipping details and updating tracking information.
 
-[//]: # (TODO: Add examples)
-1. 
-2. 
+1. [**Order lifecycle**](https://github.com/ballerina-platform/module-ballerinax-paypal.orders/tree/main/examples/order-lifecycle): Process a complete PayPal order from creation and updates through confirming and capturing payments.
+
+2. [**Manage shipping**](https://github.com/ballerina-platform/module-ballerinax-paypal.orders/tree/main/examples/manage-shipping): Enrich an order with shipping details, add or update tracking information, and push shipment updates back to PayPal.
 
 ## Prerequisites
 
-[//]: # (TODO: Add prerequisites)
+1. Generate PayPal OAuth2 credentials to authenticate the connector as described in the [Setup guide](https://central.ballerina.io/ballerinax/paypal.orders/latest).
+
+2. For each example, create a `Config.toml` file with your PayPal configuration. For instance:
+
+```toml
+clientId = "<your-paypal-client-id>"
+clientSecret = "<your-paypal-client-secret>"
+
+serviceUrl = "https://api.sandbox.paypal.com/v2/checkout"
+tokenUrl = "https://api.sandbox.paypal.com/v1/oauth2/token"
+```
 
 ## Running an example
 
 Execute the following commands to build an example from the source:
 
-* To build an example:
+- To build an example:
 
-    ```bash
-    bal build
-    ```
+  ```bash
+  bal build
+  ```
 
-* To run an example:
+- To run an example:
 
-    ```bash
-    bal run
-    ```
+  ```bash
+  bal run
+  ```
 
 ## Building the examples with the local module
 
@@ -32,14 +42,14 @@ Execute the following commands to build an example from the source:
 
 Execute the following commands to build all the examples against the changes you have made to the module locally:
 
-* To build all the examples:
+- To build all the examples:
 
-    ```bash
-    ./build.sh build
-    ```
+  ```bash
+  ./build.sh build
+  ```
 
-* To run all the examples:
+- To run all the examples:
 
-    ```bash
-    ./build.sh run
-    ```
+  ```bash
+  ./build.sh run
+  ```
