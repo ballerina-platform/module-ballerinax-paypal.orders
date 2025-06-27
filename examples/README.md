@@ -8,7 +8,7 @@ The `ballerinax/paypal.orders` connector provides practical examples illustratin
 
 ## Prerequisites
 
-1. Generate PayPal OAuth2 credentials to authenticate the connector as described in the [Setup guide](https://central.ballerina.io/ballerinax/paypal.orders/latest).
+1. Generate PayPal OAuth2 credentials to authenticate the connector as described in the [Setup guide](https://github.com/ballerina-platform/module-ballerinax-paypal.orders#setup-guide).
 
 2. For each example, create a `Config.toml` file with your PayPal configuration. For instance:
 
