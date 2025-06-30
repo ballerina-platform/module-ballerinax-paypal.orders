@@ -16,14 +16,13 @@
 
 import ballerina/lang.runtime;
 import ballerina/log;
-import ballerina/os;
 import ballerina/test;
 import ballerina/uuid;
 
-configurable boolean isLiveServer = os:getEnv("IS_LIVE_SERVER") == "true";
+configurable boolean isLiveServer = false;
 
-configurable string clientId = os:getEnv("PAYPAL_CLIENT_ID");
-configurable string clientSecret = os:getEnv("PAYPAL_CLIENT_SECRET");
+configurable string clientId = "paypal-client-id";
+configurable string clientSecret = "paypal-client-secret";
 
 final string serviceUrl = isLiveServer ? "https://api-m.sandbox.paypal.com/v2/checkout" : "http://localhost:9090";
 final string tokenUrl = isLiveServer ? "https://api-m.sandbox.paypal.com/v1/oauth2/token" : "http://localhost:9444/oauth2/token";
