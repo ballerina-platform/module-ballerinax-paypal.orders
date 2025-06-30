@@ -1,4 +1,4 @@
-# Ballerina PayPal Orders Connector
+# Ballerina PayPal Orders connector
 
 [![Build](https://github.com/ballerina-platform/module-ballerinax-paypal.orders/actions/workflows/ci.yml/badge.svg)](https://github.com/ballerina-platform/module-ballerinax-paypal.orders/actions/workflows/ci.yml)
 [![GitHub Last Commit](https://img.shields.io/github/last-commit/ballerina-platform/module-ballerinax-paypal.orders.svg)](https://github.com/ballerina-platform/module-ballerinax-paypal.orders/commits/master)
@@ -20,13 +20,13 @@ To use the PayPal Orders connector, you must have access to a [PayPal Developer 
 
 2. Click on "Sandbox Accounts" under "Testing Tools".
 
-   <img src="https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-paypal.orders/main/docs/setup/resources/sandbox-accounts.png" alt="Sandbox Accounts" style="width: 70%;">
+   ![Sandbox accounts](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-paypal.orders/main/docs/setup/resources/sandbox-accounts.png)
 
 3. Create a Business account
 
    > Note: Some PayPal options and features may vary by region or country; check availability before creating an account.
 
-   <img src="https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-paypal.orders/main/docs/setup/resources/create-account.png" alt="Create Business Account" style="width: 70%;">
+   ![Create business account](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-paypal.orders/main/docs/setup/resources/create-account.png)
 
 ### Step 2: Create a REST API app
 
@@ -34,13 +34,13 @@ To use the PayPal Orders connector, you must have access to a [PayPal Developer 
 
    Provide a name for the application and select the Business account you created earlier.
 
-   <img src="https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-paypal.orders/main/docs/setup/resources/create-app.png" alt="Create App" style="width: 70%;">
+   ![Create app](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-paypal.orders/main/docs/setup/resources/create-app.png)
 
 ### Step 3: Obtain Client ID and Client Secret
 
 1. After creating your new app, you will see your **Client ID** and **Client Secret**. Make sure to copy and securely store these credentials.
 
-   <img src="https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-paypal.orders/main/docs/setup/resources/get-credentials.png" alt="Credentials" style="width: 70%;">
+   ![Credentials](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-paypal.orders/main/docs/setup/resources/get-credentials.png)
 
 ## Quickstart
 
