@@ -51,7 +51,7 @@ To use the `paypal.orders` connector in your Ballerina application, update the `
 Import the `paypal.orders` module.
 
 ```ballerina
-import ballerinax/paypal.orders;
+import ballerinax/paypal.orders as paypal;
 ```
 
 ### Step 2: Instantiate a new connector
