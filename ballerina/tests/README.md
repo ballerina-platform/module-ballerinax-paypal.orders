@@ -1,10 +1,10 @@
-# Running Tests
+# Running tests
 
 ## Prerequisites
 
 - OAuth2 credentials (Client ID & Secret) from your PayPal Developer account.
 
-## Test Environments
+## Test environments
 
 There are two test environments for the PayPal Orders connector tests:
 
@@ -13,7 +13,7 @@ There are two test environments for the PayPal Orders connector tests:
 | `mock_tests` | Mock server for PayPal API (default) |
 | `live_tests` | PayPal Sandbox API                   |
 
-## Running Tests with the Mock Server
+## Running tests with the mock server
 
 ### Configure the `Config.toml` file
 
@@ -29,7 +29,7 @@ Then, run the following command to run the tests:
 ./gradlew clean test
 ```
 
-## Running Tests with the PayPal Sandbox API
+## Running tests with the PayPal sandbox API
 
 ### Configure the `Config.toml` file
 
@@ -48,7 +48,7 @@ Then, run the following command to run the tests:
 ./gradlew clean test
 ```
 
-## Running Specific Groups or Test Cases
+## Running specific groups or test cases
 
 To run only certain test groups or individual test cases, pass the -Pgroups property:
 

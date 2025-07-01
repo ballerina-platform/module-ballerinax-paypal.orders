@@ -90,8 +90,8 @@ public function main() returns error? {
     });
 
     paypal:PurchaseUnit[] purchaseUnits = check orderCaptureResponse.purchase_units.ensureType();
-    
-    paypal:Capture[] captures =  check purchaseUnits[0]?.payments?.captures.ensureType();
+
+    paypal:Capture[] captures = check purchaseUnits[0]?.payments?.captures.ensureType();
 
     paypal:Capture capture = captures[0];
 
