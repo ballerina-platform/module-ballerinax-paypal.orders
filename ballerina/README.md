@@ -18,7 +18,7 @@ To use the PayPal Orders connector, you must have access to a [PayPal Developer 
 
 3. Create a Business account
 
-   > Note: Some PayPal options and features may vary by region or country; check availability before creating an account.
+   > **Note:** Some PayPal options and features may vary by region or country; check availability before creating an account.
 
    ![Create business account](https://raw.githubusercontent.com/ballerina-platform/module-ballerinax-paypal.orders/main/docs/setup/resources/create-account.png)
 
