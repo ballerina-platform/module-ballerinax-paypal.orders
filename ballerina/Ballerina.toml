@@ -2,10 +2,10 @@
 distribution = "2201.12.0"
 org = "ballerinax"
 name = "paypal.orders"
-version = "2.0.1"
+version = "2.0.2"
 license = ["Apache-2.0"]
 authors = ["Ballerina"]
-keywords = ["Payments", "Orders", "Vendor/Paypal", "Area/Finance", "Type/Connector"]
+keywords = ["Payments", "Orders", "Vendor/PayPal", "Area/Finance & Accounting", "Type/Connector"]
 icon = "icon.png"
 repository = "https://github.com/ballerina-platform/module-ballerinax-paypal.orders"
 
