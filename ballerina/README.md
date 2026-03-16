@@ -1,8 +1,15 @@
 ## Overview
 
-[PayPal](https://www.paypal.com/) is a global online payment platform enabling individuals and businesses to securely send and receive money, process transactions, and access merchant services across multiple currencies.
+[PayPal](https://www.paypal.com/) is a global online payment platform that enables individuals and businesses to securely send and receive money, process transactions, and access merchant services.
 
-The `ballerinax/paypal.orders` package provides a Ballerina connector for interacting with the [PayPal Orders API v2](https://developer.paypal.com/docs/api/orders/v2/), allowing you to create, capture, authorize, and manage orders in your Ballerina applications.
+The PayPal Orders connector offers APIs to connect and interact with the [PayPal Orders API v2](https://developer.paypal.com/docs/api/orders/v2/), enabling the creation, capture, authorization, and management of orders within applications.
+
+### Key Features
+
+- Create and manage PayPal orders programmatically
+- Support for PayPal Orders API v2
+- Authorize and capture payments efficiently
+- Comprehensive order lifecycle management
 
 ## Setup guide
 
